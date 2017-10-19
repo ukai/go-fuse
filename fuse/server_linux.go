@@ -5,9 +5,12 @@
 package fuse
 
 import (
+	"errors"
 	"log"
 	"syscall"
 )
+
+var errSpliceShortRead = errors.New("short read from splice")
 
 func (ms *Server) systemWrite(req *request, header []byte) Status {
 	if req.flatDataSize() == 0 {
@@ -25,7 +28,9 @@ func (ms *Server) systemWrite(req *request, header []byte) Status {
 				req.readResult.Done()
 				return OK
 			}
-			log.Println("trySplice:", err)
+			if err != errSpliceShortRead {
+				log.Println("trySplice:", err)
+			}
 		}
 
 		sz := req.flatDataSize()
