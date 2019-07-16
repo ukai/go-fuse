@@ -95,7 +95,6 @@ func doInit(server *Server, req *request) {
 		server.kernelSettings.Flags |= CAP_FLOCK_LOCKS | CAP_POSIX_LOCKS
 	}
 
-
 	dataCacheMode := input.Flags & CAP_AUTO_INVAL_DATA
 	if server.opts.ExplicitDataCacheControl {
 		// we don't want CAP_AUTO_INVAL_DATA even if we cannot go into fully explicit mode
@@ -282,6 +281,7 @@ func doGetXAttr(server *Server, req *request) {
 func doGetAttr(server *Server, req *request) {
 	out := (*AttrOut)(req.outData())
 	s := server.fileSystem.GetAttr(req.cancel, (*GetAttrIn)(req.inData), out)
+	out.Attr.Ino = (*GetAttrIn)(req.inData).InHeader.NodeId
 	req.status = s
 }
 
