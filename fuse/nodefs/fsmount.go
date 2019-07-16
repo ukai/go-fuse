@@ -75,9 +75,8 @@ func (m *fileSystemMount) fillEntry(out *fuse.EntryOut) {
 func (m *fileSystemMount) fillAttr(out *fuse.AttrOut, nodeId uint64) {
 	out.SetTimeout(m.options.AttrTimeout)
 	m.setOwner(&out.Attr)
-	if out.Ino == 0 {
-		out.Ino = nodeId
-	}
+	// TODO(ukai): need to fix here?
+	out.Ino = nodeId
 }
 
 func (m *fileSystemMount) getOpenedFile(h uint64) *openedFile {
