@@ -6,6 +6,7 @@ package nodefs
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sync"
 	"syscall"
@@ -133,6 +134,12 @@ func (f *loopbackFile) Read(buf []byte, off int64) (res fuse.ReadResult, code fu
 func (f *loopbackFile) Write(data []byte, off int64) (uint32, fuse.Status) {
 	f.lock.Lock()
 	n, err := f.File.WriteAt(data, off)
+	// go 1.13 returns error by WriteAt if file is opened as append mode.
+	// errWriteAtInAppendMode.
+	if err != nil && err.Error() == "os: invalid use of WriteAt on file opened with O_APPEND" {
+		log.Println("WriteAt in append mode, fallback to normal write")
+		n, err = f.File.Write(data)
+	}
 	f.lock.Unlock()
 	return uint32(n), fuse.ToStatus(err)
 }
